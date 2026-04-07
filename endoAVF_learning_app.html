@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f0e8;
+    --accent: #c0392b;
+    --gold: #b8860b;
+    --muted: #6b6b7e;
+    --rule: #d4c9b0;
+    --success: #2e7d32;
+    --fail: #c0392b;
+  }
+
+  body {
+    font-family: 'Source Serif 4', serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4c9b0' fill-opacity='0.25'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .journal-header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 24px 32px 20px;
+    border-bottom: 4px solid var(--accent);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .journal-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255,255,255,0.03) 28px, rgba(255,255,255,0.03) 29px);
+  }
+
+  .journal-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+    position: relative;
+  }
+
+  .article-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1.2;
+    position: relative;
+    max-width: 700px;
+  }
+
+  .byline {
+    font-size: 12px;
+    color: rgba(245,240,232,0.6);
+    margin-top: 8px;
+    position: relative;
+    letter-spacing: 0.05em;
+  }
+
+  .tabs {
+    display: flex;
+    border-bottom: 2px solid var(--rule);
+    background: rgba(255,255,255,0.5);
+    padding: 0 32px;
+  }
+
+  .tab {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 14px 20px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    color: var(--muted);
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab:hover:not(.active) {
+    color: var(--ink);
+  }
+
+  .panel { display: none; padding: 32px; max-width: 820px; margin: 0 auto; }
+  .panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* SUMMARY STYLES */
+  .section-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .summary-lead {
+    font-size: 17px;
+    line-height: 1.7;
+    font-style: italic;
+    color: var(--ink);
+    margin-bottom: 24px;
+    padding-left: 20px;
+    border-left: 3px solid var(--gold);
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .summary-card {
+    background: white;
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--ink);
+    padding: 16px;
+  }
+
+  .summary-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .summary-card p {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: #333;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-box {
+    flex: 1;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .stat-box .num {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--gold);
+    display: block;
+  }
+
+  .stat-box .label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.7);
+    margin-top: 3px;
+    display: block;
+  }
+
+  .full-para {
+    font-size: 14.5px;
+    line-height: 1.75;
+    color: #2a2a2a;
+    margin-bottom: 16px;
+  }
+
+  .device-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--rule);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .device-col {
+    padding: 18px;
+  }
+
+  .device-col:first-child {
+    border-right: 1px solid var(--rule);
+    background: rgba(26,26,46,0.03);
+  }
+
+  .device-col h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .device-col ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .device-col li {
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 5px 0;
+    border-bottom: 1px dotted var(--rule);
+    color: #333;
+  }
+
+  .device-col li:last-child { border-bottom: none; }
+
+  .device-col li strong {
+    color: var(--ink);
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+  }
+
+  /* QUIZ STYLES */
+  .quiz-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.4s ease;
+  }
+
+  .progress-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .score-badge {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--ink);
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 2px;
+  }
+
+  .question-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--ink);
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .option-btn {
+    background: white;
+    border: 1.5px solid var(--rule);
+    padding: 14px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Source Serif 4', serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink);
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--ink);
+    background: rgba(26,26,46,0.04);
+  }
+
+  .option-btn .opt-letter {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--muted);
+    min-width: 18px;
+    margin-top: 1px;
+  }
+
+  .option-btn.correct {
+    border-color: var(--success);
+    background: rgba(46,125,50,0.07);
+  }
+
+  .option-btn.correct .opt-letter { color: var(--success); }
+
+  .option-btn.wrong {
+    border-color: var(--fail);
+    background: rgba(192,57,43,0.07);
+  }
+
+  .option-btn.wrong .opt-letter { color: var(--fail); }
+
+  .option-btn:disabled { cursor: default; }
+
+  .explanation-box {
+    background: white;
+    border-left: 4px solid var(--gold);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .explanation-box.show { display: block; }
+
+  .explanation-box .exp-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+
+  .explanation-box p {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: #333;
+  }
+
+  .next-btn {
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 12px 28px;
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .next-btn:hover { background: var(--accent); }
+
+  .results-panel {
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .results-panel h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .final-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin: 20px 0;
+  }
+
+  .final-score span {
+    font-size: 32px;
+    color: var(--muted);
+  }
+
+  .results-msg {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--muted);
+    max-width: 480px;
+    margin: 0 auto 28px;
+  }
+
+  .restart-btn {
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 14px 36px;
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .restart-btn:hover { background: var(--accent); }
+
+  @media (max-width: 600px) {
+    .summary-grid { grid-template-columns: 1fr; }
+    .device-compare { grid-template-columns: 1fr; }
+    .device-col:first-child { border-right: none; border-bottom: 1px solid var(--rule); }
+    .stat-row { flex-wrap: wrap; }
+    .article-title { font-size: 20px; }
+    .panel { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="journal-header">
+  <div class="journal-name">Seminars in Interventional Radiology · 2021</div>
+  <div class="article-title">Endovascular Arteriovenous Fistula Creation: A Review</div>
+  <div class="byline">Tyagi R, Ahmed SS, Navuluri R, Ahmed O · University of Chicago</div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('summary')">📄 Summary</button>
+  <button class="tab" onclick="switchTab('quiz')">🧠 Quiz</button>
+</div>
+
+<div id="summary" class="panel active">
+
+  <div class="section-label">Article Overview</div>
+  <div class="section-title">What Is EndoAVF and Why Does It Matter?</div>
+
+  <p class="summary-lead">Endovascular arteriovenous fistula (endoAVF) creation is a minimally invasive, percutaneous alternative to surgical fistula creation for patients who require long-term hemodialysis access.</p>
+
+  <div class="stat-row">
+    <div class="stat-box"><span class="num">2</span><span class="label">Devices Available</span></div>
+    <div class="stat-box"><span class="num">86%</span><span class="label">EndoAVF 12-mo Patency</span></div>
+    <div class="stat-box"><span class="num">5.46%</span><span class="label">Overall Complication Rate</span></div>
+    <div class="stat-box"><span class="num">~$12K</span><span class="label">Cost Savings vs. Surgery</span></div>
+  </div>
+
+  <div class="section-label" style="margin-top:8px">Background</div>
+  <div class="section-title">Why AVFs Are Preferred</div>
+  <p class="full-para">Arteriovenous fistulas are the gold standard for vascular access in end-stage renal disease. Compared to central venous catheters (CVCs) and arteriovenous grafts, AVFs offer superior long-term patency with far lower infection and reintervention rates. Traditionally formed by a surgeon, AVFs can now be created percutaneously using two FDA-cleared systems, opening the door to patients who prefer or require a non-surgical approach.</p>
+  <p class="full-para">A crucial anatomical requirement for both devices is the <strong>perforator vein</strong> — a communicating vein in the forearm that connects the deep and superficial venous systems. Without it, arterialized blood cannot reach the superficial cephalic or basilic veins needed for needle cannulation during dialysis.</p>
+
+  <div class="section-label">The Two Devices</div>
+  <div class="section-title">WavelinQ vs. Ellipsys</div>
+  <div class="device-compare">
+    <div class="device-col">
+      <h3>WavelinQ (Becton Dickinson)</h3>
+      <ul>
+        <li><strong>Fistula Location</strong>Radial artery–radial vein, or ulnar artery–ulnar vein</li>
+        <li><strong>Access</strong>Brachial artery and vein via micropuncture</li>
+        <li><strong>Mechanism</strong>Magnetic catheter alignment + RF electrode pulse (0.7 sec)</li>
+        <li><strong>Min Vessel Diameter</strong>≥2 mm; separation &lt;2 mm</li>
+        <li><strong>12-mo Primary Patency</strong>~69%</li>
+      </ul>
+    </div>
+    <div class="device-col">
+      <h3>Ellipsys (Medtronic)</h3>
+      <ul>
+        <li><strong>Fistula Location</strong>Proximal radial artery (PRA) + deep communicating vein (perforator)</li>
+        <li><strong>Access</strong>Basilic/cephalic vein, navigated to perforator</li>
+        <li><strong>Mechanism</strong>Single-needle direct puncture + radiofrequency thermal energy</li>
+        <li><strong>Min Vessel Diameter</strong>≥2 mm; separation &lt;1.5 mm</li>
+        <li><strong>12-mo Primary Patency</strong>~54–86%</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-label">Procedure & Follow-Up</div>
+  <div class="section-title">What Happens Before, During & After</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <h3>Patient Selection</h3>
+      <p>Best for patients avoiding surgery or unsuitable for radiocephalic fistula. Contraindications include thrombosed veins and flow-limiting arterial calcification.</p>
+    </div>
+    <div class="summary-card">
+      <h3>Vessel Mapping</h3>
+      <p>Preprocedural ultrasound confirms vessel diameters, proximity of target vessels, and perforator vein patency — mandatory before either device is used.</p>
+    </div>
+    <div class="summary-card">
+      <h3>Anesthesia</h3>
+      <p>Local anesthesia with moderate sedation (midazolam + fentanyl). Brachial plexus block can improve vessel dilation and patient comfort during RF pulse.</p>
+    </div>
+    <div class="summary-card">
+      <h3>Maturation Monitoring</h3>
+      <p>Doppler ultrasound every ~2 weeks. Flow ≥500–600 mL/min is the target. Maturation ranges from 26–137 days depending on the device used.</p>
+    </div>
+    <div class="summary-card">
+      <h3>Cannulation Tips</h3>
+      <p>Tourniquet required; shallow needle angle (25–35°). Diagram the cannulation zone for technicians since there is no scar or skin protrusion to guide them.</p>
+    </div>
+    <div class="summary-card">
+      <h3>Complications</h3>
+      <p>Hematoma (9%), thrombosis (9%), pseudoaneurysm (3%), arterial dissection (1%). Overall rate ~5.46%; most are minor and treatable.</p>
+    </div>
+  </div>
+
+  <div class="section-label">Outcomes</div>
+  <div class="section-title">EndoAVF vs. Surgical AVF: Key Comparisons</div>
+  <p class="full-para"><strong>Primary Patency:</strong> One retrospective study showed 86% at 12 months with endoAVF versus 61% with surgical AVF — a statistically significant difference.</p>
+  <p class="full-para"><strong>Intervention Rate:</strong> Dramatically lower with endoAVF (0.59–0.74 per patient year) versus surgical AVF (3.43–7.22 per patient year). Two-year re-intervention rates were 17% vs. 36%, respectively.</p>
+  <p class="full-para"><strong>Cost:</strong> EndoAVF is projected to save $11,240–$13,389 per patient compared to surgical AVF, largely driven by reduced reintervention rates.</p>
+  <p class="full-para"><strong>Limitations:</strong> Evidence remains limited. Prospective, multicenter randomized controlled trials are still needed to definitively characterize the indications for each approach.</p>
+
+</div>
+
+<div id="quiz" class="panel">
+  <div id="quiz-container"></div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "What is the primary reason arteriovenous fistulas (AVFs) are preferred over central venous catheters for long-term hemodialysis?",
+    opts: [
+      "They are faster to insert at bedside",
+      "They have superior patency and lower infection and reintervention rates",
+      "They do not require surgical skills to place",
+      "They are preferred only for pediatric patients"
+    ],
+    correct: 1,
+    explanation: "AVFs are preferred because of their superior long-term patency combined with significantly lower infection and reintervention rates compared to CVCs and arteriovenous grafts — making them the gold standard for vascular access in end-stage renal disease."
+  },
+  {
+    q: "The perforator vein plays a critical role in endoAVF creation. What is its primary function in this context?",
+    opts: [
+      "It serves as the primary site of fistula anastomosis formation",
+      "It connects the arterial system directly to the cephalic vein",
+      "It allows arterialized blood from the deep venous system to reach the superficial veins for cannulation",
+      "It prevents retrograde flow following fistula creation"
+    ],
+    correct: 2,
+    explanation: "The perforator vein connects the deep and superficial venous systems. After fistula creation, it acts as the conduit for arterialized blood to travel from the deep veins into the superficial cephalic and basilic veins, which can then be cannulated for hemodialysis."
+  },
+  {
+    q: "Which of the following best distinguishes the Ellipsys system from the WavelinQ system in terms of mechanism?",
+    opts: [
+      "Ellipsys uses magnetic alignment of catheters placed in the brachial vessels",
+      "Ellipsys creates a fistula between the ulnar artery and vein using RF energy",
+      "Ellipsys uses a single needle to directly puncture the proximal radial artery from the venous perforator, then delivers thermal RF energy",
+      "Ellipsys requires a surgical cutdown for vascular access"
+    ],
+    correct: 2,
+    explanation: "The Ellipsys system accesses the basilic or cephalic vein, navigates to the perforator, and performs a direct single-needle puncture into the proximal radial artery. Thermal radiofrequency energy is then applied to create the fistula — distinguishing it from WavelinQ's magnetic alignment and spring-loaded RF electrode approach."
+  },
+  {
+    q: "What minimum flow rate on Doppler ultrasound indicates that an endoAVF has matured sufficiently for hemodialysis use?",
+    opts: [
+      "100–200 mL/min",
+      "300–400 mL/min",
+      "500–600 mL/min",
+      "800–1000 mL/min"
+    ],
+    correct: 2,
+    explanation: "Flow rates of ≥500–600 mL/min on Doppler ultrasound are considered the threshold for adequate fistula maturation and suitability for hemodialysis. Routine sonographic follow-up every ~2 weeks is recommended to monitor maturation progress."
+  },
+  {
+    q: "A patient has basilic-dominant venous outflow following endoAVF creation. Why might this be clinically problematic compared to cephalic-dominant flow?",
+    opts: [
+      "The basilic vein is more prone to thrombosis than the cephalic vein",
+      "The basilic vein's deep course may require surgical transposition or elevation before it can be cannulated",
+      "Basilic-dominant flow indicates fistula failure requiring immediate revision",
+      "The basilic vein does not communicate with the deep venous system"
+    ],
+    correct: 1,
+    explanation: "The cephalic vein runs superficially and is generally easier to cannulate without additional procedures. The basilic vein, however, runs deeper — meaning basilic-dominant outflow (or even cephalic-dominant in larger patients) may necessitate surgical transposition, elevation, or lipectomy to bring the vein into a cannulable position."
+  },
+  {
+    q: "When comparing intervention rates between endoAVF and surgical AVF, which statement best reflects the data presented in this review?",
+    opts: [
+      "EndoAVF and surgical AVF have nearly identical intervention rates per patient year",
+      "Surgical AVF requires far fewer interventions, with rates of 0.59–0.74 per patient year",
+      "EndoAVF has dramatically lower intervention rates (0.59–0.74) vs. surgical AVF (3.43–7.22) per patient year",
+      "Both approaches require similar rates at 2 years but diverge significantly at 5 years"
+    ],
+    correct: 2,
+    explanation: "The review reports endoAVF intervention rates of 0.59–0.74 per patient year versus 3.43–7.22 per patient year for surgical AVF — a striking difference. This is a major driver of the projected $11,240–$13,389 cost savings per patient with the endovascular approach."
+  },
+  {
+    q: "Which of the following is a contraindication to endoAVF creation?",
+    opts: [
+      "Patient preference to avoid general anesthesia",
+      "Prior failed radiocephalic (Brescia–Cimino) fistula attempt",
+      "Thrombosed cephalic or basilic veins",
+      "Age over 65"
+    ],
+    correct: 2,
+    explanation: "Thrombosed cephalic or basilic veins are a contraindication to endoAVF creation, as the superficial venous outflow is essential for fistula function. Similarly, flow-limiting transmural arterial calcification is also a contraindication. Patient age alone is not listed as a contraindication."
+  },
+  {
+    q: "Why is it important to provide dialysis technicians with a diagram or photograph of the endoAVF cannulation zone?",
+    opts: [
+      "EndoAVF fistulas are located in an unusual anatomical position unfamiliar to most technicians",
+      "Unlike surgical AVFs, endoAVFs lack visible scars or skin protrusion that normally guide cannulation targeting",
+      "The cannulation technique for endoAVF requires a steeper needle angle than for surgical AVF",
+      "Tourniquet use is contraindicated with endoAVF, changing the approach to cannulation"
+    ],
+    correct: 1,
+    explanation: "Surgical AVFs often leave visible scars and skin changes that help technicians identify where to cannulate. EndoAVFs, being percutaneous, leave minimal external markings — making it easy to accidentally injure the underlying vessel. Providing a visual guide helps technicians accurately identify the target zone."
+  }
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+
+function renderQuestion() {
+  const q = questions[current];
+  const total = questions.length;
+  const pct = (current / total) * 100;
+  const letters = ['A','B','C','D'];
+
+  document.getElementById('quiz-container').innerHTML = `
+    <div class="quiz-progress">
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <span class="progress-text">${current + 1} / ${total}</span>
+      <span class="score-badge">Score: ${score}</span>
+    </div>
+    <div class="question-num">Question ${current + 1}</div>
+    <div class="question-text">${q.q}</div>
+    <div class="options">
+      ${q.opts.map((o, i) => `
+        <button class="option-btn" id="opt${i}" onclick="selectAnswer(${i})">
+          <span class="opt-letter">${letters[i]}</span>
+          <span>${o}</span>
+        </button>
+      `).join('')}
+    </div>
+    <div class="explanation-box" id="explanation">
+      <div class="exp-label">Explanation</div>
+      <p>${q.explanation}</p>
+    </div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()" style="display:none">
+      ${current < total - 1 ? 'Next Question →' : 'See Results →'}
+    </button>
+  `;
+  answered = false;
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const letters = ['A','B','C','D'];
+
+  for (let i = 0; i < q.opts.length; i++) {
+    const btn = document.getElementById(`opt${i}`);
+    btn.disabled = true;
+    if (i === q.correct) {
+      btn.classList.add('correct');
+      btn.querySelector('.opt-letter').textContent = '✓';
+    } else if (i === idx && idx !== q.correct) {
+      btn.classList.add('wrong');
+      btn.querySelector('.opt-letter').textContent = '✗';
+    }
+  }
+
+  if (idx === q.correct) score++;
+
+  document.getElementById('explanation').classList.add('show');
+  document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResults() {
+  const pct = Math.round((score / questions.length) * 100);
+  let msg = '';
+  if (pct >= 87) msg = "Outstanding performance. You have a strong grasp of endovascular fistula creation — from anatomical prerequisites to clinical outcomes.";
+  else if (pct >= 62) msg = "Good work. You've captured the key concepts. Revisiting the summary tab on device mechanisms and outcome data will reinforce the remaining gaps.";
+  else msg = "A solid start. Review the summary section, particularly on perforator vein anatomy, the WavelinQ vs. Ellipsys comparison, and the outcome data before retrying.";
+
+  document.getElementById('quiz-container').innerHTML = `
+    <div class="results-panel">
+      <div class="question-num">Quiz Complete</div>
+      <h2>Your Results</h2>
+      <div class="final-score">${score}<span> / ${questions.length}</span></div>
+      <p class="results-msg">${msg}</p>
+      <button class="restart-btn" onclick="restartQuiz()">Retake Quiz</button>
+    </div>
+  `;
+}
+
+function restartQuiz() {
+  current = 0;
+  score = 0;
+  answered = false;
+  renderQuestion();
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  event.target.classList.add('active');
+  if (tab === 'quiz' && current === 0 && !answered) renderQuestion();
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
